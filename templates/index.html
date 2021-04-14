@@ -24,21 +24,25 @@
 
 
   <!-- Todo: Fetch it using for loop from the database -->
+        {%for post in posts%}
+
         <div class="post-preview">
-          <a href="post.html">
+          <a href="/post/{{post.slug}}">
             <h2 class="post-title">
-              Man must explore, and this is exploration at its greatest
+              {{post.title}}
             </h2>
             <h3 class="post-subtitle">
-              Problems look mighty small from 150 miles up
+              {{post.tagline}}
             </h3>
           </a>
           <p class="post-meta">Posted by
             <a href="#">{{params['blog_name']}}</a>
             on September 24, 2019</p>
         </div>
+        {{post.content[0:49]}}...
         <hr>
 
+        {%endfor%}
 
 
         <!-- Pager -->
