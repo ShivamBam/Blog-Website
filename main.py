@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from datetime import datetime
@@ -9,6 +9,7 @@ with open('config.json', 'r') as c:
     params = json.load(c)["params"]
 
 app = Flask(__name__)
+app.secret_key = 'super-secret-key'
 
 app.config.update(
     MAIL_SERVER = 'smtp.gmail.com',
@@ -48,6 +49,51 @@ class Posts(db.Model):
 def home():
     posts = Posts.query.filter_by().all()[0:params['no_of_posts']]
     return render_template('index.html', params=params, posts=posts)
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    if ('user' in session and session['user'] == params['admin_user']):
+        posts = Posts.query.all()
+        return render_template('dashboard.html', params=params, posts=posts)
+
+
+    if request.method=='POST':
+        username = request.form.get('uname')
+        userpass = request.form.get('pass')
+        if (username==params['admin_user'] and userpass==params['admin_pass']):
+            session['user'] = username
+            posts = Posts.query.all()
+            return render_template('dashboard.html', params=params, posts=posts)
+
+    return render_template('login.html', params=params)
+
+@app.route('/edit/<string:s_no>', methods=['GET', 'POST'])
+def edit(s_no):
+    if ('user' in session and session['user'] == params['admin_user']):
+        if request.method == 'POST':
+            box_title = request.form.get('title')
+            tagline = request.form.get('tagline')
+            content = request.form.get('content')
+            slug = request.form.get('slug')
+            date = datetime.now()
+
+            if s_no == '0':
+                post = Posts(title=box_title, tagline=tagline, content=content, slug=slug, date=date)
+                db.session.add(post)
+                db.session.commit()
+
+            else:
+                post = Posts.query.filter_by(s_no=s_no).first()
+                post.title = box_title
+                post.tagline = tagline
+                post.content = content
+                post.slug = slug
+                post.date = date
+                db.session.commit()
+                return redirect("/edit/s_no")
+
+        post = Posts.query.filter_by(s_no=s_no).first()
+        return render_template('edit.html', params=params, post=post)
 
 @app.route('/about')
 def about():
