@@ -37,7 +37,7 @@
           </a>
           <p class="post-meta">Posted by
             <a href="#">{{params['blog_name']}}</a>
-            on September 24, 2019</p>
+            on April 10, 2020</p>
         </div>
         {{post.content[0:49]}}...
         <hr>
@@ -47,7 +47,8 @@
 
         <!-- Pager -->
         <div class="clearfix">
-          <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+          <a class="btn btn-primary float-left" href="{{prev}}">&larr; Previous Post</a>
+          <a class="btn btn-primary float-right" href="{{next}}">Next Post &rarr;</a>
         </div>
       </div>
     </div>
